@@ -22,13 +22,13 @@ background = pygame.image.load(
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 male_img = pygame.image.load(
-    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\male.png"
-)
+    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\male_select.png"
+).convert_alpha()
 male_img = pygame.transform.scale(male_img, (150, 250))
 
 female_img = pygame.image.load(
-    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\female.png"
-)
+    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\female_select.png"
+).convert_alpha()
 female_img = pygame.transform.scale(female_img, (150, 250))
 
 # =========================
