@@ -3,37 +3,71 @@ from pygame.locals import *
 
 pygame.init()
 
-DISPLAYSURF = pygame.display.set_mode((800, 600))
-pygame.display.set_caption('외대탈출')
+# 화면 설정
+WIDTH = 800
+HEIGHT = 600
 
-# 배경 이미지 불러오기
+DISPLAYSURF = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("외대탈출")
+
+clock = pygame.time.Clock()
+
+# =========================
+# 이미지 불러오기
+# =========================
+
 background = pygame.image.load(
     r"C:\Users\seobi\OneDrive\Desktop\외대탈출\start_background.png"
 )
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
-# 화면 크기에 맞게 이미지 조절
-background = pygame.transform.scale(background, (800, 600))
-
-# 폰트 설정
-font = pygame.font.Font(
-    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\PressStart2P-Regular.ttf",
-    20
+male_img = pygame.image.load(
+    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\male.png"
 )
+male_img = pygame.transform.scale(male_img, (150, 250))
 
-game_font = pygame.font.Font(
-    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\PressStart2P-Regular.ttf",
-    40
+female_img = pygame.image.load(
+    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\female.png"
 )
+female_img = pygame.transform.scale(female_img, (150, 250))
+
+# =========================
+# 폰트
+# =========================
 
 title_font = pygame.font.Font(
     r"C:\Users\seobi\OneDrive\Desktop\외대탈출\Galmuri11-Bold.ttf",
-    90
+    70
 )
 
-# 현재 화면 상태
+font = pygame.font.Font(
+    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\Galmuri11-Bold.ttf",
+    28
+)
+
+small_font = pygame.font.Font(
+    r"C:\Users\seobi\OneDrive\Desktop\외대탈출\Galmuri11-Bold.ttf",
+    20
+)
+
+# =========================
+# 변수
+# =========================
+
 scene = "start"
 
-clock = pygame.time.Clock()
+player_name = ""
+selected_gender = None
+
+input_active = True
+
+# 캐릭터 선택 박스
+male_rect = pygame.Rect(170, 230, 150, 250)
+female_rect = pygame.Rect(480, 230, 150, 250)
+
+# =========================
+# 게임 루프
+# =========================
 
 while True:
 
@@ -43,55 +77,148 @@ while True:
             pygame.quit()
             sys.exit()
 
-        # 시작 화면에서 마우스 클릭 시 게임 시작
-        if scene == "start":
-            if event.type == MOUSEBUTTONDOWN:
-                scene = "game"
+        # =========================
+        # 시작 화면
+        # =========================
 
+        if scene == "start":
+
+            if event.type == MOUSEBUTTONDOWN:
+                scene = "setting"
+
+        # =========================
+        # 설정 화면
+        # =========================
+
+        elif scene == "setting":
+
+            # 이름 입력
+            if event.type == KEYDOWN:
+
+                if input_active:
+
+                    if event.key == K_BACKSPACE:
+                        player_name = player_name[:-1]
+
+                    elif event.key == K_RETURN:
+
+                        if player_name != "" and selected_gender != None:
+                            scene = "game"
+
+                    else:
+
+                        if len(player_name) < 10:
+                            player_name += event.unicode
+
+            # 성별 선택
+            if event.type == MOUSEBUTTONDOWN:
+
+                if male_rect.collidepoint(event.pos):
+                    selected_gender = "male"
+
+                if female_rect.collidepoint(event.pos):
+                    selected_gender = "female"
+
+    # =====================================================
     # 시작 화면
+    # =====================================================
+
     if scene == "start":
 
-        # 배경 출력
         DISPLAYSURF.blit(background, (0, 0))
 
-        # 현재 시간
+        # 제목
+        title = title_font.render("외대탈출", True, (255,255,255))
+        title_rect = title.get_rect(center=(400,120))
+
+        DISPLAYSURF.blit(title, title_rect)
+
+        # 깜빡이는 문구
         current_time = pygame.time.get_ticks()
 
-        # 0.5초마다 깜빡임
         if (current_time // 500) % 2 == 0:
 
-            text = font.render(
+            text = small_font.render(
                 ">> PRESS THE MOUSE BUTTON <<",
                 True,
-                (255, 255, 255)
+                (255,255,255)
             )
 
-            text_rect = text.get_rect(center=(380, 520))
+            text_rect = text.get_rect(center=(400,520))
 
             DISPLAYSURF.blit(text, text_rect)
 
-        # 게임 제목
-        title_text = title_font.render("외대탈출",True,(0, 0, 128))
+    # =====================================================
+    # 설정 화면
+    # =====================================================
 
-        title_rect = title_text.get_rect(center=(400, 140))
+    elif scene == "setting":
 
-        DISPLAYSURF.blit(title_text, title_rect)
-        
+        DISPLAYSURF.fill((30,30,30))
 
-    # 게임 화면
-    elif scene == "game":
-
-        DISPLAYSURF.fill((0, 0, 0))
-
-        game_text = game_font.render(
-            "GAME START",
+        # 이름 입력
+        name_text = font.render(
+            f"이름(영어로 입력) : {player_name}",
             True,
-            (255, 255, 255)
+            (255,255,255)
         )
 
-        game_rect = game_text.get_rect(center=(400, 300))
+        DISPLAYSURF.blit(name_text, (50,50))
 
-        DISPLAYSURF.blit(game_text, game_rect)
+        guide_text = small_font.render(
+            "성별 선택 후 ENTER 를 누르면 시작",
+            True,
+            (180,180,180)
+        )
+
+        DISPLAYSURF.blit(guide_text, (50,90))
+
+        # 게임 설명
+        info1 = small_font.render(
+            "교수님을 피해 외대를 탈출하세요.",
+            True,
+            (255,255,255)
+        )
+
+        info2 = small_font.render(
+            "마우스로 이동할 수 있습니다.",
+            True,
+            (255,255,255)
+        )
+
+
+        DISPLAYSURF.blit(info1, (50,140))
+        DISPLAYSURF.blit(info2, (50,170))
+
+
+        # 남자 캐릭터
+        DISPLAYSURF.blit(male_img, (170,230))
+
+        # 여자 캐릭터
+        DISPLAYSURF.blit(female_img, (480,230))
+
+        # 선택 표시
+        if selected_gender == "male":
+            pygame.draw.rect(DISPLAYSURF, (0,255,0), male_rect, 5)
+
+        if selected_gender == "female":
+            pygame.draw.rect(DISPLAYSURF, (0,255,0), female_rect, 5)
+
+    # =====================================================
+    # 게임 시작 화면
+    # =====================================================
+
+    elif scene == "game":
+
+        DISPLAYSURF.fill((0,0,0))
+
+        start_text = font.render(
+            f"{player_name} 게임 시작!",
+            True,
+            (255,255,255)
+        )
+
+        DISPLAYSURF.blit(start_text, (260,260))
 
     pygame.display.update()
     clock.tick(60)
