@@ -389,7 +389,7 @@ while True:
         )
 
         clear_text = title_font.render(
-            "STAGE 7",
+            "자과대 통과",
             True,
             (255,255,255)
         )

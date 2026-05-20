@@ -431,7 +431,7 @@ while True:
         DISPLAYSURF.fill((0,0,0))
 
         clear_text = font.render(
-            "STAGE 4",
+            "교양관 통과",
             True,
             (255,255,255)
         )
