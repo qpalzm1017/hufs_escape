@@ -126,15 +126,13 @@ animation_timer = 0
 animation_speed = 200
 
 # =========================
-# 시작 위치 (왼쪽 하단)
+# 시작 위치 (오른쪽 하단)
 # =========================
 
-start_x = 40
+start_x = WIDTH - 60
 start_y = HEIGHT - 60
 
-pygame.mouse.set_pos(
-    (start_x, start_y)
-)
+game_started = False
 
 # =========================
 # CCTV 움직임
@@ -152,7 +150,6 @@ cctv2_direction = -1
 
 cctv_speed = 4
 
-# 이동 범위
 LEFT_LIMIT = 100
 RIGHT_LIMIT = 550
 
@@ -190,12 +187,9 @@ while True:
             if event.type == KEYDOWN:
 
                 scene = "game"
+                game_started = False
 
-                pygame.mouse.set_pos(
-                    (start_x, start_y)
-                )
-
-                # CCTV 위치 초기화
+                # CCTV 초기화
                 cctv1_x = 100
                 cctv2_x = 500
 
@@ -219,6 +213,15 @@ while True:
     # =========================
 
     if scene == "game":
+
+        # 처음 시작 위치 강제 지정
+        if not game_started:
+
+            pygame.mouse.set_pos(
+                (start_x, start_y)
+            )
+
+            game_started = True
 
         DISPLAYSURF.blit(
             background,
@@ -343,7 +346,7 @@ while True:
             else:
                 frame_index = 0
 
-        # 성별 캐릭터 선택
+        # 성별 캐릭터
 
         if selected_gender == "male":
 
@@ -370,28 +373,28 @@ while True:
         # 히트박스 확인용
         # =====================
 
-        # 문 히트박스 (파란색)
-        pygame.draw.rect(
-            DISPLAYSURF,
-            (0,0,255),
-            door_rect,
-            2
-        )
+        # # 문 히트박스
+        # pygame.draw.rect(
+        #     DISPLAYSURF,
+        #     (0,0,255),
+        #     door_rect,
+        #     2
+        # )
 
-        # 불빛 히트박스 (빨간색)
-        pygame.draw.rect(
-            DISPLAYSURF,
-            (255,0,0),
-            light1_rect,
-            2
-        )
+        # # 불빛 히트박스
+        # pygame.draw.rect(
+        #     DISPLAYSURF,
+        #     (255,0,0),
+        #     light1_rect,
+        #     2
+        # )
 
-        pygame.draw.rect(
-            DISPLAYSURF,
-            (255,0,0),
-            light2_rect,
-            2
-        )
+        # pygame.draw.rect(
+        #     DISPLAYSURF,
+        #     (255,0,0),
+        #     light2_rect,
+        #     2
+        # )
 
     # =========================
     # 게임오버 화면
@@ -407,7 +410,7 @@ while True:
         retry_text = font.render(
             "PRESS ANY KEY TO RETRY",
             True,
-            (255,255,255)
+            (0,0,0)
         )
 
         retry_rect = retry_text.get_rect(
