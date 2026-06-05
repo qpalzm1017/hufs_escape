@@ -148,7 +148,7 @@ cctv2_x = 500
 cctv2_y = 300
 cctv2_direction = -1
 
-cctv_speed = 4
+cctv_speed = 10
 
 LEFT_LIMIT = 100
 RIGHT_LIMIT = 550

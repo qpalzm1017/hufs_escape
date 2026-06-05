@@ -120,9 +120,9 @@ female_run2 = pygame.transform.scale(
 # 문제
 # =========================
 
-question = "hufs를 c언어로 출력하려면?"
-
-correct_answer = 'printf("hufs");'
+question = "팀원이 올린 코드를 가져오는 Git 명령어는?\n($ 제외하고 입력)"
+lines = question.split("\n")
+correct_answer = 'git pull'
 
 answer_input = ""
 
@@ -255,19 +255,13 @@ while True:
 
         DISPLAYSURF.blit(
             title_text,
-            (250,50)
+            (150,50)
         )
 
-        question_text = font.render(
-            question,
-            True,
-            (0,0,0)
-        )
+        for i, line in enumerate(lines):
+            question_text = font.render(line,True,(0,0,0))
 
-        DISPLAYSURF.blit(
-            question_text,
-            (180,180)
-        )
+            DISPLAYSURF.blit(question_text,(100,150+i*40))
 
         guide_text = small_font.render(
             "Type your answer and press ENTER",

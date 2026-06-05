@@ -215,9 +215,10 @@ while True:
         # 계단 충돌
         # =========================
 
-        if player_rect.colliderect(stairs_rect):
+        if not elevator_open:
+            if player_rect.colliderect(stairs_rect):
 
-            scene = "stage3"
+                scene = "stage3"
 
         # =========================
         # 배경 출력
@@ -237,6 +238,21 @@ while True:
         else:
 
             DISPLAYSURF.blit(closed_bg, (0,0))
+
+        # =========================
+        # 상단 안내 문구
+        # =========================
+
+        hint_text = font.render(
+        "엘레베이터를 타볼까?",
+        True,
+        (255, 0, 0))
+
+        hint_rect = hint_text.get_rect(center=(400, 40))
+
+        DISPLAYSURF.blit(
+        hint_text,
+        hint_rect)
 
         # =========================
         # 캐릭터 애니메이션

@@ -120,16 +120,16 @@ female_run2 = pygame.transform.scale(
 # 문제
 # =========================
 
-question = "2+5=?"
+question = "1+2+3+...+99=?"
 
 choices = [
-    "17",
-    "77",
-    "70",
-    "7"
+    "5000",
+    "5050",
+    "4950",
+    "4850"
 ]
 
-correct_answer = 3
+correct_answer = 2
 
 # =========================
 # 답 박스

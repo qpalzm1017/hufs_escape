@@ -199,7 +199,8 @@ while True:
             animal_y = random.randint(350, 480)
             
             # 70% 확률로 수달, 30% 확률로 오리 등장
-            if random.randint(1, 10) <= 7:
+            # 난이도향상위해 수달 60%확률로 수정함
+            if random.randint(1, 10) <= 6:
                 current_animal = "otter"
             else:
                 current_animal = "duck"
