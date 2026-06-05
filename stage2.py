@@ -58,7 +58,7 @@ open_bg = pygame.transform.scale(
 
 # 게임오버 이미지
 gameover_img = pygame.image.load(
-    "image/stage2_gameover.png"
+    "image/Stage3_gameover (2).png"
 ).convert()
 
 gameover_img = pygame.transform.scale(
@@ -230,8 +230,8 @@ while True:
 
             gameover_timer += dt
 
-            # 2초 후 게임오버
-            if gameover_timer >= 2000:
+            # 1초 후 게임오버
+            if gameover_timer >= 1000:
 
                 scene = "gameover"
 
