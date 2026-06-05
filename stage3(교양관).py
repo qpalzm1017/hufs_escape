@@ -144,7 +144,7 @@ door_rect = pygame.Rect(130, 180, 150, 160)
 light1_rect = pygame.Rect(cctv1_x - 60, cctv_y + 60, 200, 480) 
 light2_rect = pygame.Rect(cctv2_x - 60, cctv_y + 60, 200, 480)
 light3_rect = pygame.Rect(cctv3_x - 60, cctv_y + 60, 200, 480)
-light4_rect = pygame.Rect(cctv4_x - 60, cctv_y + 60, 200, 480)
+light4_rect = pygame.Rect(cctv4_x - 60, cctv_y + 60, 200, 360)
 
 # =========================
 # 게임 루프
