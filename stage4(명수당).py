@@ -47,7 +47,7 @@ background = pygame.transform.scale(
 
 # 게임오버 이미지 (이전 스테이지 이미지 재사용)
 gameover_img = pygame.image.load(
-    "image/stage3_gameover.png"
+    "image/stage4_gameover.png"
 ).convert()
 
 gameover_img = pygame.transform.scale(
