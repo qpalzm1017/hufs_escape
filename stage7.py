@@ -74,10 +74,10 @@ def reset_game():
     shot_direction = None
     shot_speed = 15
     
-    # ★ 골키퍼 속도 "천천히" 조절 (기존 8~9 -> 2.5로 하향)
+    # 골키퍼 속도 "천천히" 조절 (기존 8~9 -> 2.5로 하향)
     goalkeeper_x = 355
     goalkeeper_y = 120
-    goalkeeper_speed = 2.5  
+    goalkeeper_speed = 5
     goalkeeper_direction = 1
     
     # 게이지 상태 (느린 속도 유지)
