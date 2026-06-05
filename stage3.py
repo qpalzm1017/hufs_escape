@@ -100,6 +100,9 @@ start_x = WIDTH - 60
 start_y = HEIGHT - 60
 game_started = False
 
+# 마우스 위치 초기화 렉(버그)을 방지하기 위한 강제 고정 프레임 변수
+mouse_reset_frames = 0
+
 # =========================
 # CCTV 고정 위치 및 상태 설정 
 # =========================
