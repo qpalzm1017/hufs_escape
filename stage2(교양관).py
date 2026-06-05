@@ -58,7 +58,7 @@ open_bg = pygame.transform.scale(
 
 # 게임오버 이미지
 gameover_img = pygame.image.load(
-    "image/stage1_gameover.png"
+    "image/stage2_gameover.png"
 ).convert()
 
 gameover_img = pygame.transform.scale(
