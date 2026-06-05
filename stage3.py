@@ -26,11 +26,18 @@ font = pygame.font.Font(
 )
 
 # =========================
-# 성별
-# main.py에서 받아올 예정
+# 성별 (main.py에서 받아올 예정)
 # =========================
 
 selected_gender = "male"
+
+# =========================
+# 반투명 레이어 설정
+# =========================
+# 화면 크기와 동일한 투명한 도화지를 만듭니다.
+light_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+# 노란색(R:255, G:255, B:0)에 투명도 100을 설정합니다.
+YELLOW_ALPHA = (255, 255, 0, 100) 
 
 # =========================
 # 이미지 불러오기
@@ -55,16 +62,6 @@ cctv_img = pygame.transform.scale(
     (80, 80)
 )
 
-# CCTV 불빛 이미지
-light_img = pygame.image.load(
-    "image/CCTV_light.png"
-).convert_alpha()
-
-light_img = pygame.transform.scale(
-    light_img,
-    (180, 100)
-)
-
 # 게임오버 이미지
 gameover_img = pygame.image.load(
     "image/stage3_gameover.png"
@@ -79,90 +76,75 @@ gameover_img = pygame.transform.scale(
 # 캐릭터 이미지
 # =========================
 
-male_run1 = pygame.image.load(
-    "image/male_run.png"
-).convert_alpha()
+male_run1 = pygame.image.load("image/male_run.png").convert_alpha()
+male_run2 = pygame.image.load("image/male_run2.png").convert_alpha()
+female_run1 = pygame.image.load("image/female_run.png").convert_alpha()
+female_run2 = pygame.image.load("image/female_run2.png").convert_alpha()
 
-male_run2 = pygame.image.load(
-    "image/male_run2.png"
-).convert_alpha()
-
-female_run1 = pygame.image.load(
-    "image/female_run.png"
-).convert_alpha()
-
-female_run2 = pygame.image.load(
-    "image/female_run2.png"
-).convert_alpha()
-
-male_run1 = pygame.transform.scale(
-    male_run1,
-    (100,100)
-)
-
-male_run2 = pygame.transform.scale(
-    male_run2,
-    (100,100)
-)
-
-female_run1 = pygame.transform.scale(
-    female_run1,
-    (100,100)
-)
-
-female_run2 = pygame.transform.scale(
-    female_run2,
-    (100,100)
-)
+male_run1 = pygame.transform.scale(male_run1, (100,100))
+male_run2 = pygame.transform.scale(male_run2, (100,100))
+female_run1 = pygame.transform.scale(female_run1, (100,100))
+female_run2 = pygame.transform.scale(female_run2, (100,100))
 
 # =========================
-# 변수
+# 변수 설정
 # =========================
 
 scene = "game"
-
 frame_index = 0
 animation_timer = 0
 animation_speed = 200
 
-# =========================
 # 시작 위치 (오른쪽 하단)
-# =========================
-
 start_x = WIDTH - 60
 start_y = HEIGHT - 60
-
 game_started = False
 
 # =========================
-# CCTV 움직임
+# CCTV 고정 위치 및 상태 설정 
 # =========================
 
-# 위 CCTV
-cctv1_x = 100
-cctv1_y = 70
-cctv1_direction = 1
+cctv_y = 60
 
-# 아래 CCTV
-cctv2_x = 500
-cctv2_y = 300
-cctv2_direction = -1
+# 1. 첫 번째 CCTV (0.3초 대기, 0.8초 켜짐)
+cctv1_x = 40
+cctv1_timer = 0
+cctv1_is_on = False
+CCTV1_OFF_TIME = 300  
+CCTV1_ON_TIME = 800   
 
-cctv_speed = 10
+# 2. 두 번째 CCTV (0.4초 대기, 0.5초 켜짐)
+cctv2_x = 260
+cctv2_timer = 0
+cctv2_is_on = False
+CCTV2_OFF_TIME = 400   
+CCTV2_ON_TIME = 500   
 
-LEFT_LIMIT = 100
-RIGHT_LIMIT = 550
+# 3. 세 번째 CCTV (1.5초 대기, 1.5초 켜짐)
+cctv3_x = 480
+cctv3_timer = 0
+cctv3_is_on = False
+CCTV3_OFF_TIME = 1500   
+CCTV3_ON_TIME = 1500    
+
+# 4. 네 번째 CCTV (0.4초 대기, 0.5초 켜짐)
+cctv4_x = 700
+cctv4_timer = 0
+cctv4_is_on = False
+CCTV4_OFF_TIME = 400   
+CCTV4_ON_TIME = 500    
 
 # =========================
-# 문 히트박스
+# 문 및 직사각형 불빛 히트박스
 # =========================
 
-door_rect = pygame.Rect(
-    130,
-    180,
-    150,
-    160
-)
+door_rect = pygame.Rect(130, 180, 150, 160)
+
+# 1~4번째 감시구역
+light1_rect = pygame.Rect(cctv1_x - 60, cctv_y + 60, 200, 480) 
+light2_rect = pygame.Rect(cctv2_x - 60, cctv_y + 60, 200, 480)
+light3_rect = pygame.Rect(cctv3_x - 60, cctv_y + 60, 200, 480)
+light4_rect = pygame.Rect(cctv4_x - 60, cctv_y + 60, 200, 360)
 
 # =========================
 # 게임 루프
@@ -173,40 +155,25 @@ while True:
     dt = clock.tick(60)
 
     for event in pygame.event.get():
-
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
 
-        # =====================
         # 게임오버 재시작
-        # =====================
-
         if scene == "gameover":
-
             if event.type == KEYDOWN:
-
                 scene = "game"
                 game_started = False
-
-                # CCTV 초기화
-                cctv1_x = 100
-                cctv2_x = 500
-
-                cctv1_direction = 1
-                cctv2_direction = -1
+                
+                # CCTV 타이머 및 상태 초기화
+                cctv1_timer = cctv2_timer = cctv3_timer = cctv4_timer = 0
+                cctv1_is_on = cctv2_is_on = cctv3_is_on = cctv4_is_on = False
 
     pygame.mouse.set_visible(False)
-
     mx, my = pygame.mouse.get_pos()
 
     # 플레이어 히트박스
-    player_rect = pygame.Rect(
-        mx - 20,
-        my - 20,
-        40,
-        40
-    )
+    player_rect = pygame.Rect(mx - 20, my - 20, 40, 40)
 
     # =========================
     # 게임 화면
@@ -214,235 +181,128 @@ while True:
 
     if scene == "game":
 
-        # 처음 시작 위치 강제 지정
         if not game_started:
-
-            pygame.mouse.set_pos(
-                (start_x, start_y)
-            )
-
+            pygame.mouse.set_pos((start_x, start_y))
+            mx, my = start_x, start_y
+            player_rect = pygame.Rect(mx - 20, my - 20, 40, 40)
             game_started = True
 
-        DISPLAYSURF.blit(
-            background,
-            (0,0)
-        )
+        DISPLAYSURF.blit(background, (0,0))
 
         # =====================
-        # CCTV 이동
+        # CCTV 타이머 로직 업데이트
         # =====================
 
-        cctv1_x += (
-            cctv_speed
-            * cctv1_direction
-        )
+        cctv1_timer += dt
+        cctv2_timer += dt
+        cctv3_timer += dt
+        cctv4_timer += dt
 
-        cctv2_x += (
-            cctv_speed
-            * cctv2_direction
-        )
+        # CCTV 1 제어
+        if not cctv1_is_on and cctv1_timer >= CCTV1_OFF_TIME:
+            cctv1_is_on = True
+            cctv1_timer = 0
+        elif cctv1_is_on and cctv1_timer >= CCTV1_ON_TIME:
+            cctv1_is_on = False
+            cctv1_timer = 0
 
-        # 방향 반전
+        # CCTV 2 제어
+        if not cctv2_is_on and cctv2_timer >= CCTV2_OFF_TIME:
+            cctv2_is_on = True
+            cctv2_timer = 0
+        elif cctv2_is_on and cctv2_timer >= CCTV2_ON_TIME:
+            cctv2_is_on = False
+            cctv2_timer = 0
 
-        if cctv1_x >= RIGHT_LIMIT:
-            cctv1_direction = -1
+        # CCTV 3 제어
+        if not cctv3_is_on and cctv3_timer >= CCTV3_OFF_TIME:
+            cctv3_is_on = True
+            cctv3_timer = 0
+        elif cctv3_is_on and cctv3_timer >= CCTV3_ON_TIME:
+            cctv3_is_on = False
+            cctv3_timer = 0
 
-        if cctv1_x <= LEFT_LIMIT:
-            cctv1_direction = 1
-
-        if cctv2_x >= RIGHT_LIMIT:
-            cctv2_direction = -1
-
-        if cctv2_x <= LEFT_LIMIT:
-            cctv2_direction = 1
-
-        # =====================
-        # CCTV 출력
-        # =====================
-
-        DISPLAYSURF.blit(
-            cctv_img,
-            (cctv1_x, cctv1_y)
-        )
-
-        DISPLAYSURF.blit(
-            cctv_img,
-            (cctv2_x, cctv2_y)
-        )
-
-        # =====================
-        # 불빛 위치
-        # =====================
-
-        light1_x = cctv1_x - 40
-        light1_y = cctv1_y + 60
-
-        light2_x = cctv2_x - 40
-        light2_y = cctv2_y + 60
-
-        # 불빛 출력
-
-        DISPLAYSURF.blit(
-            light_img,
-            (light1_x, light1_y)
-        )
-
-        DISPLAYSURF.blit(
-            light_img,
-            (light2_x, light2_y)
-        )
+        # CCTV 4 제어 
+        if not cctv4_is_on and cctv4_timer >= CCTV4_OFF_TIME:
+            cctv4_is_on = True
+            cctv4_timer = 0
+        elif cctv4_is_on and cctv4_timer >= CCTV4_ON_TIME:
+            cctv4_is_on = False
+            cctv4_timer = 0
 
         # =====================
-        # 불빛 히트박스
+        # 반투명 불빛 레이어 초기화 & 그리기
         # =====================
+        # 매 프레임마다 투명 도화지를 지워줍니다.
+        light_surface.fill((0, 0, 0, 0))
 
-        light1_rect = pygame.Rect(
-            light1_x,
-            light1_y,
-            180,
-            100
-        )
+        if cctv1_is_on:
+            pygame.draw.rect(light_surface, YELLOW_ALPHA, light1_rect)
+            if player_rect.colliderect(light1_rect):
+                scene = "gameover"
+                
+        if cctv2_is_on:
+            pygame.draw.rect(light_surface, YELLOW_ALPHA, light2_rect)
+            if player_rect.colliderect(light2_rect):
+                scene = "gameover"
+                
+        if cctv3_is_on:
+            pygame.draw.rect(light_surface, YELLOW_ALPHA, light3_rect)
+            if player_rect.colliderect(light3_rect):
+                scene = "gameover"
+                
+        if cctv4_is_on:
+            pygame.draw.rect(light_surface, YELLOW_ALPHA, light4_rect)
+            if player_rect.colliderect(light4_rect):
+                scene = "gameover"
 
-        light2_rect = pygame.Rect(
-            light2_x,
-            light2_y,
-            180,
-            100
-        )
+        # 캐릭터, 문 등 메인 화면 요소를 덮도록 투명 도화지를 합칩니다.
+        DISPLAYSURF.blit(light_surface, (0, 0))
 
         # =====================
-        # 충돌 판정
+        # CCTV 본체 출력
         # =====================
+        DISPLAYSURF.blit(cctv_img, (cctv1_x, cctv_y))
+        DISPLAYSURF.blit(cctv_img, (cctv2_x, cctv_y))
+        DISPLAYSURF.blit(cctv_img, (cctv3_x, cctv_y))
+        DISPLAYSURF.blit(cctv_img, (cctv4_x, cctv_y))
 
-        if player_rect.colliderect(
-            light1_rect
-        ):
-            scene = "gameover"
-
-        if player_rect.colliderect(
-            light2_rect
-        ):
-            scene = "gameover"
-
-        # 문 닿기
-
-        if player_rect.colliderect(
-            door_rect
-        ):
+        # 문 닿기 (클리어)
+        if player_rect.colliderect(door_rect):
             scene = "stage4"
 
         # =====================
-        # 캐릭터 애니메이션
+        # 캐릭터 애니메이션 및 출력
         # =====================
-
         animation_timer += dt
-
         if animation_timer >= animation_speed:
-
             animation_timer = 0
-
-            if frame_index == 0:
-                frame_index = 1
-            else:
-                frame_index = 0
-
-        # 성별 캐릭터
+            frame_index = 1 if frame_index == 0 else 0
 
         if selected_gender == "male":
-
-            if frame_index == 0:
-                player_img = male_run1
-            else:
-                player_img = male_run2
-
+            player_img = male_run1 if frame_index == 0 else male_run2
         else:
+            player_img = female_run1 if frame_index == 0 else female_run2
 
-            if frame_index == 0:
-                player_img = female_run1
-            else:
-                player_img = female_run2
+        DISPLAYSURF.blit(player_img, (mx - 50, my - 50))
 
-        # 캐릭터 출력
-
-        DISPLAYSURF.blit(
-            player_img,
-            (mx - 50, my - 50)
-        )
-
-        # =====================
-        # 히트박스 확인용
-        # =====================
-
-        # # 문 히트박스
-        # pygame.draw.rect(
-        #     DISPLAYSURF,
-        #     (0,0,255),
-        #     door_rect,
-        #     2
-        # )
-
-        # # 불빛 히트박스
-        # pygame.draw.rect(
-        #     DISPLAYSURF,
-        #     (255,0,0),
-        #     light1_rect,
-        #     2
-        # )
-
-        # pygame.draw.rect(
-        #     DISPLAYSURF,
-        #     (255,0,0),
-        #     light2_rect,
-        #     2
-        # )
 
     # =========================
     # 게임오버 화면
     # =========================
-
     elif scene == "gameover":
-
-        DISPLAYSURF.blit(
-            gameover_img,
-            (0,0)
-        )
-
-        retry_text = font.render(
-            "PRESS ANY KEY TO RETRY",
-            True,
-            (0,0,0)
-        )
-
-        retry_rect = retry_text.get_rect(
-            center=(400,520)
-        )
-
-        DISPLAYSURF.blit(
-            retry_text,
-            retry_rect
-        )
+        DISPLAYSURF.blit(gameover_img, (0,0))
+        retry_text = font.render("PRESS ANY KEY TO RETRY", True, (0,0,0))
+        retry_rect = retry_text.get_rect(center=(400,520))
+        DISPLAYSURF.blit(retry_text, retry_rect)
 
     # =========================
     # Stage4 임시
     # =========================
-
     elif scene == "stage4":
-
         DISPLAYSURF.fill((0,0,0))
-
-        clear_text = font.render(
-            "교양관 통과",
-            True,
-            (255,255,255)
-        )
-
-        clear_rect = clear_text.get_rect(
-            center=(400,300)
-        )
-
-        DISPLAYSURF.blit(
-            clear_text,
-            clear_rect
-        )
+        clear_text = font.render("STAGE 4", True, (255,255,255))
+        clear_rect = clear_text.get_rect(center=(400,300))
+        DISPLAYSURF.blit(clear_text, clear_rect)
 
     pygame.display.update()
