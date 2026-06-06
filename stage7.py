@@ -37,7 +37,8 @@ def run(DISPLAYSURF, clock, selected_gender):
     arrow_center = pygame.transform.scale(pygame.image.load("image/arrow_center.png").convert_alpha(), (80, 80))
     arrow_right = pygame.transform.scale(pygame.image.load("image/arrow_right.png").convert_alpha(), (80, 80))
 
-    gameover_img = pygame.image.load("image/stage3_gameover.png").convert()
+    # ★ 게임오버 이미지 (단일 이미지 - 정상 유지됨)
+    gameover_img = pygame.image.load("image/stage7_fail.jpg").convert()
     gameover_img = pygame.transform.scale(gameover_img, (WIDTH, HEIGHT))
 
     # 캐릭터 이미지
@@ -57,7 +58,6 @@ def run(DISPLAYSURF, clock, selected_gender):
     animation_timer = 0
     animation_speed = 200
 
-    # 게임 상태 변수 사전 선언 (nonlocal 바인딩을 위해)
     ball_x, ball_y = 0, 0
     shooting = False
     shot_direction = None
@@ -73,7 +73,6 @@ def run(DISPLAYSURF, clock, selected_gender):
     # 게임 리셋 함수
     # =========================
     def reset_game():
-        # def run() 내부의 함수이므로 global 대신 nonlocal을 사용합니다.
         nonlocal ball_x, ball_y, shooting, shot_direction, shot_speed
         nonlocal goalkeeper_x, goalkeeper_y, goalkeeper_speed, goalkeeper_direction
         nonlocal power_gauge, power_direction, result_text, clicked_arrow
@@ -84,13 +83,11 @@ def run(DISPLAYSURF, clock, selected_gender):
         shot_direction = None
         shot_speed = 15
         
-        # 골키퍼 속도 "천천히" 조절
         goalkeeper_x = 355
         goalkeeper_y = 120
         goalkeeper_speed = 5
         goalkeeper_direction = 1
         
-        # 게이지 상태
         power_gauge = 0
         power_direction = 1
         clicked_arrow = None  
@@ -98,9 +95,8 @@ def run(DISPLAYSURF, clock, selected_gender):
 
     reset_game()
 
-    # 위치 제한 및 화살표 히트박스
     goal_x, goal_y = 150, 30
-    LEFT_LIMIT, RIGHT_LIMIT = 230, 480  # 골키퍼 좌우 순찰 범위
+    LEFT_LIMIT, RIGHT_LIMIT = 230, 480  
 
     goal_rect = pygame.Rect(230, 90, 360, 200)
     left_rect = pygame.Rect(220, 400, 80, 80)
@@ -119,14 +115,12 @@ def run(DISPLAYSURF, clock, selected_gender):
                 sys.exit()
 
             if scene == "game":
-                # 마우스 클릭 시작 (게이지 충전)
                 if event.type == MOUSEBUTTONDOWN and event.button == 1:
                     mx, my = event.pos
                     if left_rect.collidepoint(mx, my): clicked_arrow = "left"
                     elif center_rect.collidepoint(mx, my): clicked_arrow = "center"
                     elif right_rect.collidepoint(mx, my): clicked_arrow = "right"
                 
-                # 마우스 클릭 해제 (슛 발사)
                 if event.type == MOUSEBUTTONUP and event.button == 1:
                     if clicked_arrow and not shooting:
                         shooting = True
@@ -141,9 +135,6 @@ def run(DISPLAYSURF, clock, selected_gender):
         pygame.mouse.set_visible(True)
         mx, my = pygame.mouse.get_pos()
 
-        # =====================
-        # 게임 플레이 씬
-        # =====================
         if scene == "game":
             if not game_started:
                 pygame.mouse.set_pos((400, 500))
@@ -154,27 +145,19 @@ def run(DISPLAYSURF, clock, selected_gender):
             DISPLAYSURF.blit(background, (0, 0))
             DISPLAYSURF.blit(goal_img, (goal_x, goal_y))
 
-            # ---------------------
-            # 골키퍼 천천히 순찰 이동
-            # ---------------------
             goalkeeper_x += goalkeeper_speed * goalkeeper_direction
             if goalkeeper_x >= RIGHT_LIMIT:
                 goalkeeper_direction = -1
             if goalkeeper_x <= LEFT_LIMIT:
                 goalkeeper_direction = 1
 
-            # 완벽한 충돌 감지를 위해 히트박스 세로 영역을 든든하게 설정
             goalkeeper_rect = pygame.Rect(goalkeeper_x, goalkeeper_y, 90, 220)
             DISPLAYSURF.blit(goalkeeper_img, (goalkeeper_x, goalkeeper_y))
 
-            # 화살표 그리기
             DISPLAYSURF.blit(arrow_left, (220, 400))
             DISPLAYSURF.blit(arrow_center, (360, 400))
             DISPLAYSURF.blit(arrow_right, (500, 400))
 
-            # ---------------------
-            # 차분하고 느린 게이지 시스템
-            # ---------------------
             if clicked_arrow and not shooting:
                 power_gauge += 2.5 * power_direction
                 if power_gauge >= 100:
@@ -184,7 +167,6 @@ def run(DISPLAYSURF, clock, selected_gender):
                     power_gauge = 0
                     power_direction = 1
                 
-                # 게이지 UI
                 pygame.draw.rect(DISPLAYSURF, (50, 50, 50), pygame.Rect(300, 360, 200, 20))
                 fill_color = (0, 255, 0) if 70 <= power_gauge <= 90 else (255, 50, 50)
                 pygame.draw.rect(DISPLAYSURF, fill_color, pygame.Rect(300, 360, int(power_gauge) * 2, 20))
@@ -192,37 +174,24 @@ def run(DISPLAYSURF, clock, selected_gender):
                 guide_txt = font.render(f"파워: {int(power_gauge)}% (70-90 조준!)", True, (255, 255, 255))
                 DISPLAYSURF.blit(guide_txt, (210, 310))
 
-            # 공 출력
             DISPLAYSURF.blit(ball_img, (ball_x, ball_y))
 
-            # ---------------------
-            # 슛 애니메이션 및 궤적 연산
-            # ---------------------
             if shooting:
                 if shot_direction == "left":
-                    # 게이지를 잘 맞추면 완전 구석으로 휘어짐, 실패하면 골키퍼 근처로 덜 휘어짐
                     ball_x -= 9.5 if 70 <= power_gauge <= 90 else 5.5
                     ball_y -= shot_speed
-
                 elif shot_direction == "right":
                     ball_x += 9.5 if 70 <= power_gauge <= 90 else 5.5
                     ball_y -= shot_speed
-
                 elif shot_direction == "center":
                     ball_y -= shot_speed
 
-                # 정밀한 공 히트박스 구성
                 shot_rect = pygame.Rect(ball_x + 40, ball_y + 20, 60, 60)
 
-                # ---------------------
-                # 핵심 판정 조건문 규칙
-                # ---------------------
-                # 1순위: 공이 골키퍼 히트박스에 닿았을 때 (무조건 게임오버)
                 if shot_rect.colliderect(goalkeeper_rect):
                     result_text = "MISSED! 골키퍼 정면 선방!"
                     scene = "gameover"
 
-                # 2순위: 골대 안으로 들어가는 궤적일 때
                 elif shot_rect.colliderect(goal_rect):
                     if power_gauge > 90:
                         result_text = "OVER THE BAR! 너무 강해서 홈런!"
@@ -231,17 +200,12 @@ def run(DISPLAYSURF, clock, selected_gender):
                         result_text = "TOO WEAK! 슛이 너무 약합니다!"
                         scene = "gameover"
                     else:
-                        # ★ 여기서 "game_clear" 대신 "stage8"을 반환하도록 수정했습니다!
                         return "stage8"
 
-                # 3순위: 아예 골대 라인을 벗어났을 때
                 elif ball_y < 50:
                     result_text = "OUT OF BOUNDS! 실축!"
                     scene = "gameover"
 
-            # ---------------------
-            # 캐릭터 애니메이션
-            # ---------------------
             animation_timer += dt
             if animation_timer >= animation_speed:
                 animation_timer = 0
@@ -254,9 +218,6 @@ def run(DISPLAYSURF, clock, selected_gender):
                 
             DISPLAYSURF.blit(player_img, (350, 500))
 
-        # =====================
-        # 게임오버 씬
-        # =====================
         elif scene == "gameover":
             DISPLAYSURF.blit(gameover_img, (0, 0))
             if result_text:
