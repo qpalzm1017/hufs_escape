@@ -13,12 +13,12 @@ def run(DISPLAYSURF, clock, selected_gender):
     pygame.display.set_caption("외대탈출 ROUND 1")
 
     # =========================
-    # 폰트 (기존 유저 폰트 규격으로 통일)
+    # 폰트
     # =========================
     font = pygame.font.Font("font/Galmuri11-Bold.ttf", 35)
 
     # =========================
-    # 이미지 로드 (조원분 에셋 적용)
+    # 이미지 로드
     # =========================
     # 1. 배경
     background = pygame.image.load("image/Stage2_강의실 배경.png").convert()
@@ -32,20 +32,15 @@ def run(DISPLAYSURF, clock, selected_gender):
     prof_front = pygame.transform.scale(prof_front, prof_size)
     prof_back = pygame.transform.scale(prof_back, prof_size)
     
-    # 조원분이 center=(330, 270)으로 맞춘 위치를 topleft 좌표로 변환
     prof_pos = (290, 195) 
 
-    # 3. 게임오버 / 성공 화면 이미지
+    # 3. 게임오버 화면 이미지
     fail_img = pygame.image.load("image/Stage2_선택지1.png").convert()
     fail_img = pygame.transform.scale(fail_img, (WIDTH, HEIGHT))
-
-    success_img = pygame.image.load("image/Stage2_선택지3_남학생.png").convert()
-    success_img = pygame.transform.scale(success_img, (WIDTH, HEIGHT))
 
     # 4. 캐릭터 이미지 로드 및 크기 조절
     player_size = (80, 150)
     
-    # 조원분이 사용하신 _l (왼쪽 보는) 이미지가 없을 경우를 대비해 예외 처리 추가
     try:
         male_run1 = pygame.image.load("image/male_run_l.png").convert_alpha()
         male_run2 = pygame.image.load("image/male_run2_l.png").convert_alpha()
@@ -71,10 +66,12 @@ def run(DISPLAYSURF, clock, selected_gender):
     # 교수님 시야 및 타이머 변수
     prof_facing_front = False 
     last_turn_time = 0
-    turn_interval = random.randint(1500, 3500)
+    
+    # ★ 처음 시작할 때 칠판 보는 시간 (0.4초 ~ 0.6초)
+    turn_interval = random.randint(400, 600)
 
-    # 위치 관련 변수
-    start_x, start_y = WIDTH // 2, HEIGHT - 100
+    # 시작 위치를 오른쪽 하단으로 변경
+    start_x, start_y = 720, 500
     prev_mouse_pos = (start_x, start_y)
     
     # 문 히트박스
@@ -89,6 +86,7 @@ def run(DISPLAYSURF, clock, selected_gender):
 
         for event in pygame.event.get():
             if event.type == QUIT:
+                pygame.event.set_grab(False) # 종료 시 마우스 잠금 해제
                 pygame.quit()
                 sys.exit()
 
@@ -99,24 +97,13 @@ def run(DISPLAYSURF, clock, selected_gender):
                 if event.type == KEYDOWN:
                     scene = "game"
                     prof_facing_front = False
-                    
-                    # 재시작 시 타이머 초기화
                     last_turn_time = pygame.time.get_ticks()
-                    turn_interval = random.randint(1500, 3500)
-                    
+                    turn_interval = random.randint(800, 1500) # 재시작 시 타이머 타이트하게
                     game_started = False
-
-            # ---------------------
-            # 성공 씬에서 다음 스테이지로
-            # ---------------------
-            elif scene == "success":
-                if event.type == KEYDOWN:
-                    return "stage2"  # main.py로 신호를 보냄
 
         pygame.mouse.set_visible(False)
         mx, my = pygame.mouse.get_pos()
 
-        # 캐릭터 사이즈에 맞춰 히트박스 위치 세밀 조정
         player_rect = pygame.Rect(mx - 40, my - 75, 80, 150)
 
         # =====================
@@ -127,6 +114,10 @@ def run(DISPLAYSURF, clock, selected_gender):
                 pygame.mouse.set_pos((start_x, start_y))
                 prev_mouse_pos = (start_x, start_y)
                 last_turn_time = pygame.time.get_ticks()
+                
+                # 게임 시작 시 마우스를 창 밖으로 못 나가게 가두기
+                pygame.event.set_grab(True) 
+                
                 game_started = True
 
             DISPLAYSURF.blit(background, (0, 0))
@@ -140,12 +131,19 @@ def run(DISPLAYSURF, clock, selected_gender):
             prev_mouse_pos = (mx, my)
 
             # ---------------------
-            # 교수님 패턴 로직
+            # ★ 교수님 패턴 로직 (난이도 대폭 상승)
             # ---------------------
             if current_time - last_turn_time > turn_interval:
                 prof_facing_front = not prof_facing_front
                 last_turn_time = current_time
-                turn_interval = random.randint(1500, 3500)
+                
+                # 앞으로 돌았을 때와 칠판을 볼 때의 시간을 다르게 설정
+                if prof_facing_front:
+                    # 학생들을 감시하는 시간 (1초 ~ 2.5초)
+                    turn_interval = random.randint(1000, 2500)
+                else:
+                    # 칠판을 보는 시간 (0.4초 ~ 0.5초) 
+                    turn_interval = random.randint(400, 500)
 
             # 교수님 이미지 출력
             if prof_facing_front:
@@ -157,15 +155,17 @@ def run(DISPLAYSURF, clock, selected_gender):
             # 충돌 및 클리어 판정
             # ---------------------
             if is_moving and prof_facing_front:
+                pygame.event.set_grab(False) # 게임오버 시 마우스 잠금 해제
                 scene = "gameover"
 
+            # 문에 닿으면 다음 라운드로
             if player_rect.colliderect(door_rect):
-                scene = "success"
+                pygame.event.set_grab(False) # 다음 스테이지로 가기 전 마우스 잠금 해제
+                return "stage2"
 
             # ---------------------
             # 캐릭터 이미지 출력
             # ---------------------
-            # 조원분의 로직대로, 움직일 때와 멈춰있을 때 이미지를 다르게 적용합니다.
             if selected_gender == "male":
                 player_img = male_run2 if is_moving else male_run1
             else:
@@ -183,16 +183,5 @@ def run(DISPLAYSURF, clock, selected_gender):
             retry_text = font.render("PRESS ANY KEY TO RETRY", True, (0, 0, 0))
             retry_rect = retry_text.get_rect(center=(WIDTH // 2, 520))
             DISPLAYSURF.blit(retry_text, retry_rect)
-
-        # =====================
-        # 3. 클리어(성공) 씬
-        # =====================
-        elif scene == "success":
-            pygame.mouse.set_visible(True)
-            DISPLAYSURF.blit(success_img, (0, 0))
-            
-            next_text = font.render("PRESS ANY KEY TO NEXT STAGE", True, (0, 0, 0))
-            next_rect = next_text.get_rect(center=(WIDTH // 2, 520))
-            DISPLAYSURF.blit(next_text, next_rect)
 
         pygame.display.update()
