@@ -6,7 +6,7 @@ from pygame.locals import *
 def run(DISPLAYSURF, clock, selected_gender):
     
     # =========================
-    # 화면 설정 (main.py에서 가져오지만 박스 벽 튕김 계산을 위해 필요합니다)
+    # 화면 설정
     # =========================
     WIDTH = 800
     HEIGHT = 600
@@ -26,11 +26,12 @@ def run(DISPLAYSURF, clock, selected_gender):
     background = pygame.transform.scale(background, (WIDTH, HEIGHT))
     background.set_alpha(50)
 
-    # =========================
-    # 게임오버 이미지
-    # =========================
-    gameover_img = pygame.image.load("image/stage3_gameover.png").convert()
-    gameover_img = pygame.transform.scale(gameover_img, (WIDTH, HEIGHT))
+    # ★ 게임오버 이미지 (성별 분리)
+    gameover_img_male = pygame.image.load("image/stage6_fail_male.jpg").convert()
+    gameover_img_male = pygame.transform.scale(gameover_img_male, (WIDTH, HEIGHT))
+
+    gameover_img_female = pygame.image.load("image/stage6_fail_female.jpg").convert()
+    gameover_img_female = pygame.transform.scale(gameover_img_female, (WIDTH, HEIGHT))
 
     # =========================
     # 게임 진행 변수
@@ -48,7 +49,6 @@ def run(DISPLAYSURF, clock, selected_gender):
     # 문제 세팅 함수
     # =========================
     def setup_question(q_num):
-        # run() 함수 안의 함수이므로 global 대신 nonlocal을 사용해야 변수가 올바르게 수정됩니다.
         nonlocal question, answers_data, q4_timer
         answers_data = []
         q4_timer = 0 
@@ -146,7 +146,6 @@ def run(DISPLAYSURF, clock, selected_gender):
                 mx, my = event.pos
                 clicked_box = False
 
-                # 좌클릭 (일반적인 선택)
                 if event.button == 1: 
                     for data in answers_data:
                         if data["rect"].collidepoint(mx, my):
@@ -167,32 +166,21 @@ def run(DISPLAYSURF, clock, selected_gender):
                                 scene = "gameover"
                             break
                     
-                    # 3번 문제: 상자가 아닌 QUESTION 번호를 클릭했을 때
                     if not clicked_box and current_q == 3:
                         if title_num_rect.collidepoint(mx, my):
                             current_q = 4
                             setup_question(4)
 
-                # 우클릭 (5번 문제 파훼법)
                 elif event.button == 3:
                     if current_q == 5:
-                        # 스테이지 클리어! main.py로 신호를 보냅니다.
                         return "stage7"
 
         pygame.mouse.set_visible(True)
-
-        # =========================
-        # 게임 화면
-        # =========================
 
         if scene == "game":
 
             DISPLAYSURF.fill((255,255,255))
             DISPLAYSURF.blit(background, (0,0))
-
-            # =====================
-            # 문제 출력 및 번호 히트박스 분리
-            # =====================
 
             q_surface = title_font.render("QUESTION ", True, (0,0,0))
             q_rect = q_surface.get_rect(topleft=(280, 40))
@@ -206,9 +194,6 @@ def run(DISPLAYSURF, clock, selected_gender):
             q_rect_txt = question_text.get_rect(center=(400, 130))
             DISPLAYSURF.blit(question_text, q_rect_txt)
 
-            # =====================
-            # 1번 문제: 상자 튕김 이동
-            # =====================
             if current_q == 1:
                 for data in answers_data:
                     rect = data["rect"]
@@ -239,9 +224,6 @@ def run(DISPLAYSURF, clock, selected_gender):
                             if rect1.centery < rect2.centery: rect1.y -= 8; rect2.y += 8
                             else: rect1.y += 8; rect2.y -= 8
 
-            # =====================
-            # 4번 문제: 인내심 타이머 & 박스 하강 로직
-            # =====================
             elif current_q == 4:
                 q4_timer += dt
                 if q4_timer >= 5000: 
@@ -251,18 +233,11 @@ def run(DISPLAYSURF, clock, selected_gender):
                         if box5.y > 380: 
                             box5.y = 380
 
-            # =====================
-            # 답안지 그리기
-            # =====================
             for data in answers_data:
                 rect = data["rect"]
 
                 pygame.draw.rect(DISPLAYSURF, (180,180,180), rect)
                 pygame.draw.rect(DISPLAYSURF, (0,0,0), rect, 2)
-                
-                # =====================
-                # 2번 문제 글자 페이드 효과 및 모든 박스 중앙 정렬
-                # =====================
                 
                 if current_q == 2 and data["index"] == 0:
                     if q2_attempts == 1: col_4 = (180, 180, 180) 
@@ -299,11 +274,15 @@ def run(DISPLAYSURF, clock, selected_gender):
                     text_rect = text_surface.get_rect(center=rect.center)
                     DISPLAYSURF.blit(text_surface, text_rect)
 
-        # =========================
-        # 게임오버 화면
-        # =========================
         elif scene == "gameover":
-            DISPLAYSURF.blit(gameover_img, (0,0))
+            # ★ 깐깐하게 분리한 성별 판정 로직
+            if selected_gender == "male":
+                DISPLAYSURF.blit(gameover_img_male, (0,0))
+            elif selected_gender == "female":
+                DISPLAYSURF.blit(gameover_img_female, (0,0))
+            else:
+                DISPLAYSURF.blit(gameover_img_male, (0,0))
+                
             retry_text = font.render("PRESS ANY KEY TO RETRY", True, (0,0,0))
             retry_rect = retry_text.get_rect(center=(400,520))
             DISPLAYSURF.blit(retry_text, retry_rect)
