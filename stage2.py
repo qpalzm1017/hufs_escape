@@ -24,7 +24,8 @@ def run(DISPLAYSURF, clock, selected_gender):
     open_bg = pygame.image.load("image/hall_2.png").convert()
     open_bg = pygame.transform.scale(open_bg, (WIDTH, HEIGHT))
 
-    gameover_img = pygame.image.load("image/stage2_gameover.png").convert()
+    # ★ 게임오버 이미지 (단일 이미지로 수정)
+    gameover_img = pygame.image.load("image/Stage2_fail.png").convert()
     gameover_img = pygame.transform.scale(gameover_img, (WIDTH, HEIGHT))
 
     male_run1 = pygame.image.load("image/male_run.png").convert_alpha()
@@ -117,7 +118,9 @@ def run(DISPLAYSURF, clock, selected_gender):
             DISPLAYSURF.blit(player_img, (player_x - 50, player_y - 50))
 
         elif scene == "gameover":
+            # ★ 단일 이미지 출력
             DISPLAYSURF.blit(gameover_img, (0,0))
+                
             gameover_text = font.render("PRESS ANY KEY TO RETRY", True, (0,0,0))
             text_rect = gameover_text.get_rect(center=(400,520))
             DISPLAYSURF.blit(gameover_text, text_rect)
