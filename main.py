@@ -3,7 +3,6 @@ from pygame.locals import *
 
 # =========================
 # 스테이지 파일 불러오기 
-# (주의: 각 stage 파일들의 코드가 def run(): 안에 들어있어야 여기서 바로 실행되지 않습니다!)
 # =========================
 import stage1
 import stage2
@@ -12,6 +11,7 @@ import stage4
 import stage5
 import stage6
 import stage7
+import stage8
 
 pygame.init()
 
@@ -50,10 +50,14 @@ male_img = pygame.transform.scale(male_img, (150, 250))
 female_img = pygame.image.load("image/female_select.png").convert_alpha()
 female_img = pygame.transform.scale(female_img, (150, 250))
 
+# 마지막 클리어 이미지 
+last_stage_img = pygame.image.load("image/last stage.png").convert()
+last_stage_img = pygame.transform.scale(last_stage_img, (WIDTH, HEIGHT))
+
 # =========================
 # 폰트
 # =========================
-title_font = pygame.font.Font("font/Galmuri11-Bold.ttf", 70)
+title_font = pygame.font.Font("font/Galmuri11-Bold.ttf", 60) # 창문 크기에 맞게 폰트 크기 살짝 조정 (70 -> 60)
 font = pygame.font.Font("font/Galmuri11-Bold.ttf", 28)
 small_font = pygame.font.Font("font/Galmuri11-Bold.ttf", 20)
 
@@ -187,13 +191,25 @@ while True:
         fade_transition()
         scene = stage7.run(DISPLAYSURF, clock, selected_gender)
 
+    elif scene == "stage8":
+        fade_transition()
+        scene = stage8.run(DISPLAYSURF, clock, selected_gender)
+
     # =====================================================
-    # 게임 최종 클리어 화면
+    # 게임 최종 클리어 화면 (이미지 + 창문 텍스트)
     # =====================================================
     elif scene == "game_clear":
-        DISPLAYSURF.fill((0, 0, 0))
+        # 1. 배경 이미지 깔기
+        DISPLAYSURF.blit(last_stage_img, (0, 0))
+        
+        # 2. 그림자 효과 (입체감을 위해 검은색 글씨를 살짝 엇갈리게 배치)
+        shadow_text = title_font.render("외대 탈출 성공!", True, (0, 0, 0))
+        shadow_rect = shadow_text.get_rect(center=(404, 204)) # 창문 한가운데 좌표(400, 200)에서 살짝 우측 하단
+        DISPLAYSURF.blit(shadow_text, shadow_rect)
+        
+        # 3. 메인 텍스트 (흰색 혹은 예쁜 노란색 등)
         clear_text = title_font.render("외대 탈출 성공!", True, (255, 255, 255))
-        clear_rect = clear_text.get_rect(center=(400, 300))
+        clear_rect = clear_text.get_rect(center=(400, 200)) # 창문 정중앙 좌표
         DISPLAYSURF.blit(clear_text, clear_rect)
 
     pygame.display.update()
