@@ -136,7 +136,7 @@ def run(DISPLAYSURF, clock, selected_gender):
             prev_mouse_pos = (mx, my)
 
             # ---------------------
-            # 교수님 패턴 로직 (난이도 대폭 상승)
+            # 교수님 패턴 로직 
             # ---------------------
             if current_time - last_turn_time > turn_interval:
                 prof_facing_front = not prof_facing_front
@@ -147,8 +147,8 @@ def run(DISPLAYSURF, clock, selected_gender):
                     # 학생들을 감시하는 시간 (1초 ~ 2.5초)
                     turn_interval = random.randint(1000, 2500)
                 else:
-                    # 칠판을 보는 시간 (0.4초 ~ 0.5초) 
-                    turn_interval = random.randint(400, 500)
+                    # 칠판을 보는 시간 (0.4초 ~ 0.8초) 
+                    turn_interval = random.randint(400, 800)
 
             # 교수님 이미지 출력
             if prof_facing_front:
