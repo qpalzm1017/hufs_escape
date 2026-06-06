@@ -67,7 +67,7 @@ def run(DISPLAYSURF, clock, selected_gender):
     prof_facing_front = False 
     last_turn_time = 0
     
-    # ★ 처음 시작할 때 칠판 보는 시간 (0.4초 ~ 0.6초)
+    # 처음 시작할 때 칠판 보는 시간 (0.4초 ~ 0.6초)
     turn_interval = random.randint(400, 600)
 
     # 시작 위치를 오른쪽 하단으로 변경
@@ -112,6 +112,11 @@ def run(DISPLAYSURF, clock, selected_gender):
         if scene == "game":
             if not game_started:
                 pygame.mouse.set_pos((start_x, start_y))
+                
+                # [수정된 부분] set_pos 이후 현재 프레임의 변수와 히트박스 즉시 동기화
+                mx, my = start_x, start_y
+                player_rect = pygame.Rect(mx - 40, my - 75, 80, 150)
+                
                 prev_mouse_pos = (start_x, start_y)
                 last_turn_time = pygame.time.get_ticks()
                 
@@ -131,7 +136,7 @@ def run(DISPLAYSURF, clock, selected_gender):
             prev_mouse_pos = (mx, my)
 
             # ---------------------
-            # ★ 교수님 패턴 로직 (난이도 대폭 상승)
+            # 교수님 패턴 로직 (난이도 대폭 상승)
             # ---------------------
             if current_time - last_turn_time > turn_interval:
                 prof_facing_front = not prof_facing_front
