@@ -231,8 +231,8 @@ def run(DISPLAYSURF, clock, selected_gender):
                         result_text = "TOO WEAK! 슛이 너무 약합니다!"
                         scene = "gameover"
                     else:
-                        # 게이지(70~90)도 맞췄고, 골키퍼 몸에 닿지도 않았다면 골인 성공!
-                        return "game_clear"
+                        # ★ 여기서 "game_clear" 대신 "stage8"을 반환하도록 수정했습니다!
+                        return "stage8"
 
                 # 3순위: 아예 골대 라인을 벗어났을 때
                 elif ball_y < 50:
