@@ -26,8 +26,12 @@ def run(DISPLAYSURF, clock, selected_gender):
     cctv_img = pygame.image.load("image/CCTV.png").convert_alpha()
     cctv_img = pygame.transform.scale(cctv_img, (80, 80))
 
-    gameover_img = pygame.image.load("image/stage3_gameover.png").convert()
-    gameover_img = pygame.transform.scale(gameover_img, (WIDTH, HEIGHT))
+    # ★ 게임오버 이미지 (성별 분리)
+    gameover_img_male = pygame.image.load("image/stage3_fail_male.jpg").convert()
+    gameover_img_male = pygame.transform.scale(gameover_img_male, (WIDTH, HEIGHT))
+
+    gameover_img_female = pygame.image.load("image/stage3_fail_female.jpg").convert()
+    gameover_img_female = pygame.transform.scale(gameover_img_female, (WIDTH, HEIGHT))
 
     male_run1 = pygame.image.load("image/male_run.png").convert_alpha()
     male_run2 = pygame.image.load("image/male_run2.png").convert_alpha()
@@ -163,7 +167,14 @@ def run(DISPLAYSURF, clock, selected_gender):
             DISPLAYSURF.blit(player_img, (mx - 50, my - 50))
 
         elif scene == "gameover":
-            DISPLAYSURF.blit(gameover_img, (0,0))
+            # ★ 깐깐하게 분리한 성별 판정 로직
+            if selected_gender == "male":
+                DISPLAYSURF.blit(gameover_img_male, (0,0))
+            elif selected_gender == "female":
+                DISPLAYSURF.blit(gameover_img_female, (0,0))
+            else:
+                DISPLAYSURF.blit(gameover_img_male, (0,0))
+
             retry_text = font.render("PRESS ANY KEY TO RETRY", True, (0,0,0))
             retry_rect = retry_text.get_rect(center=(400,520))
             DISPLAYSURF.blit(retry_text, retry_rect)
